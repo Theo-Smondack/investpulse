@@ -1,0 +1,9 @@
+services:
+  next:
+    image: theospro/investpulse-next:${TAG_VERSION:-latest}
+  nginx:
+    image: theospro/investpulse-nginx:${TAG_VERSION:-latest}
+    environment:
+      DNS : '${DNS:?err}'
+    volumes:
+      - /etc/letsencrypt/live/${DNS}:/etc/letsencrypt/live/${DNS}
