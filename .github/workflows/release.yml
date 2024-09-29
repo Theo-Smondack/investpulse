@@ -1,0 +1,30 @@
+name: Check Version and Release
+
+on:
+  push
+
+permissions:
+  contents: write
+
+jobs:
+  check_version:
+    runs-on: ubuntu-latest
+    if: ${{ endsWith(github.ref, '/develop') || endsWith(github.ref, '/main') || startsWith(github.ref, 'refs/tags')}}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Version
+        uses: ./.github/release-action
+
+  release:
+    name: Release pushed tag
+    needs: check_version
+    runs-on: ubuntu-latest
+    if: ${{ startsWith(github.ref, 'refs/tags') }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Create Release
+        uses: ./.github/release-action
+        with:
+          create-release: 'true'
+          tag: ${{ github.ref_name }}

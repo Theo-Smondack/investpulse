@@ -1,0 +1,7 @@
+FROM node:23-alpine
+
+RUN apk add --no-cache bash openssl
+
+WORKDIR /home/node/app
+
+ENTRYPOINT [ "./scripts/next/dev/next-entrypoint.sh" ]

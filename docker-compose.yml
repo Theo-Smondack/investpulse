@@ -1,0 +1,43 @@
+services:
+    next:
+        env_file:
+            - .env
+        restart: unless-stopped
+        container_name: '${NEXT_CONTAINER_NAME:?err}'
+        stdin_open: true
+        tty: true
+        depends_on:
+            postgres:
+                condition: service_healthy
+
+    nginx:
+        environment:
+            NEXT_CONTAINER_NAME: '${NEXT_CONTAINER_NAME:?err}'
+            NGINX_CONTAINER_NAME : '${NGINX_CONTAINER_NAME:?err}'
+            DNS: '${DNS:?err}'
+        restart: unless-stopped
+        container_name: '${NGINX_CONTAINER_NAME:?err}'
+        hostname: 'nginx'
+        ports:
+            - '80:80'
+            - '443:443'
+        depends_on:
+            - next
+
+    postgres:
+        image: postgres:17
+        restart: unless-stopped
+        container_name: '${POSTGRES_CONTAINER_NAME:?err}'
+        ports:
+            - '5432:5432'
+        environment:
+            POSTGRES_USER: '${POSTGRES_USER:?err}'
+            POSTGRES_PASSWORD: '${POSTGRES_PASSWORD:?err}'
+            POSTGRES_DB: '${POSTGRES_DB:?err}'
+        volumes:
+            - ./data/postgres:/var/lib/postgres/data
+        healthcheck:
+            test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:?err} -d ${POSTGRES_DB:?err}" ]
+            interval: 30s
+            timeout: 30s
+            retries: 5
