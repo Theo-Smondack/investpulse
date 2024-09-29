@@ -1,0 +1,18 @@
+services:
+  next:
+    build:
+      context: .
+      dockerfile: docker/next/Dockerfile.dev
+    volumes:
+      - .:/home/node/app
+    extra_hosts:
+      - ${DNS:?err}:127.0.0.1
+  nginx:
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile.dev
+    volumes:
+      - ./docker/nginx/snippets/dev/ssl-certificate.conf.template:/etc/nginx/snippets/ssl-certificate.conf.template
+      - ./docker/nginx/snippets/http.conf.template:/etc/nginx/snippets/http.conf.template
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/ssl:/etc/ssl/private/
