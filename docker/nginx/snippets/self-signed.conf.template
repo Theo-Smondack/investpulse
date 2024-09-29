@@ -1,0 +1,2 @@
+ssl_certificate /etc/ssl/private/${DNS}.crt;
+ssl_certificate_key /etc/ssl/private/${DNS}.key;

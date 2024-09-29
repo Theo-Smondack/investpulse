@@ -1,0 +1,43 @@
+FROM node:23-alpine AS base
+FROM base AS builder
+
+RUN apk add --no-cache bash openssl libc6-compat
+
+WORKDIR /home/node/app
+
+COPY package.json yarn.lock ./
+
+COPY scripts/next/prod/next-entrypoint.sh ./scripts/next-entrypoint.sh
+
+COPY prisma ./prisma
+
+RUN yarn install --frozen-lockfile
+
+RUN npx prisma generate
+
+COPY . .
+
+ENV NODE_ENV=production
+
+RUN yarn build
+
+FROM --platform=linux/amd64 base AS runner
+
+RUN apk add --no-cache bash openssl
+
+WORKDIR /home/node/app
+
+ENV NODE_ENV=production
+
+# Copy necessary files from build stage
+COPY --from=builder /home/node/app/next.config.mjs ./
+COPY --from=builder /home/node/app/.next/standalone ./
+COPY --from=builder /home/node/app/.next/static ./.next/static
+COPY --from=builder /home/node/app/prisma ./prisma
+COPY --from=builder /home/node/app/scripts/next-entrypoint.sh ./scripts/next-entrypoint.sh
+COPY --from=builder /home/node/app/package.json ./
+COPY --from=builder /home/node/app/yarn.lock ./
+
+
+# Run the application
+ENTRYPOINT [ "./scripts/next-entrypoint.sh" ]
