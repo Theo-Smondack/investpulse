@@ -3,6 +3,8 @@ services:
         build:
             context: .
             dockerfile: ./docker/next/Dockerfile
+            platforms:
+                - linux/amd64
         env_file:
             - .env
         restart: unless-stopped
