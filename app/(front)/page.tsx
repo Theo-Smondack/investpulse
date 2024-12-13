@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import GenerateNewsButton from '@/app/(front)/(ui)/generate-news-button';
 import NewsCard from '@/app/(front)/(ui)/news-card';
-import { getPageTitle } from '@/app/(front)/action';
+import { getNews } from '@/app/(front)/action';
 
 export default function Home() {
     const [news, setNews] = useState<string | string[] | undefined>(undefined);
@@ -14,9 +14,9 @@ export default function Home() {
 
     const updateNews = async () => {
         clearNews();
-        const res = await getPageTitle();
-        if (res.title) {
-            setNews(res.title);
+        const res = await getNews();
+        if (res.news) {
+            setNews(res.news);
             return;
         }
     }
