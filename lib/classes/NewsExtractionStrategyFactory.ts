@@ -11,7 +11,7 @@ export class NewsExtractionStrategyFactory {
 
     }
 
-    registerStrategy(key: string, strategy: new () => INewsExtractionStrategy) {
+    private registerStrategy(key: string, strategy: new () => INewsExtractionStrategy) {
         this.strategies.set(key.toLowerCase(), strategy);
     }
 
