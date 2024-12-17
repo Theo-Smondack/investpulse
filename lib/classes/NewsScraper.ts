@@ -1,7 +1,7 @@
 import { Browser } from 'puppeteer-core';
 
 import { NewsExtractionStrategyFactory } from '@/lib/classes/NewsExtractionStrategyFactory';
-import { NewsArticle, NewsScraperOptions } from '@/types/classes/NewsScraper';
+import { NewsArticle, ScraperOptions } from '@/types/classes/NewsScraper';
 
 export class NewsScraper {
     private strategyFactory: NewsExtractionStrategyFactory;
@@ -13,7 +13,15 @@ export class NewsScraper {
         this.strategyFactory = strategyFactory || new NewsExtractionStrategyFactory();
     }
 
-    async scrapeNews(options: NewsScraperOptions): Promise<NewsArticle[]> {
+    async scrapeAll(urls: string[]): Promise<NewsArticle[]> {
+        const articles: NewsArticle[] = [];
+        for (const url of urls) {
+            articles.push(...await this.scrape({ url }));
+        }
+        return articles;
+    }
+
+    private async scrape(options: ScraperOptions): Promise<NewsArticle[]> {
         const strategyKey = this.extractStrategyKey(options.url);
         const extractionStrategy = this.strategyFactory.getStrategy(strategyKey);
 
@@ -28,18 +36,18 @@ export class NewsScraper {
 
             const articleUrls = await extractionStrategy.extractArticleUrls(page);
 
-            for (const url of articleUrls.slice(0, options.maxArticles ?? 4)) {
+            for (const articleUrl of articleUrls.slice(0, options.maxArticles ?? 4)) {
                 const articlePage = await this.browserService.newPage();
                 try {
-                    await articlePage.goto(url, {
+                    await articlePage.goto(articleUrl, {
                         waitUntil: 'networkidle0',
                         timeout: options.timeout ?? 30000,
                     });
 
                     const content = await extractionStrategy.extractArticleContent(articlePage);
-                    articles.push({ url, content });
+                    articles.push({ url: articleUrl, content });
                 } catch (error) {
-                    console.error(`Failed to scrape ${url}:`, error);
+                    console.error(`Failed to scrape ${articleUrl}:`, error);
                 } finally {
                     await articlePage.close();
                 }
@@ -57,6 +65,8 @@ export class NewsScraper {
     private extractStrategyKey(url: string): string {
         const hostname = new URL(url).hostname;
         if (hostname.includes('coinacademy')) return 'coinacademy';
+        if (hostname.includes('journalducoin')) return 'journalducoin';
+        if (hostname.includes('cointribune')) return 'cointribune';
         throw new Error(`No strategy found for URL: ${url}`);
     }
 }

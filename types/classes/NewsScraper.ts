@@ -1,4 +1,4 @@
-export interface NewsScraperOptions {
+export interface ScraperOptions {
     url: string;
     maxArticles?: number;
     timeout?: number;

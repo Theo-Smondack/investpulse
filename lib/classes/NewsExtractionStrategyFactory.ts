@@ -1,12 +1,14 @@
+import { CoinAcademy, CoinTribune, JournalDuCoin } from '@/lib/classes/news-strategies';
 import { INewsExtractionStrategy } from '@/types/classes/NewsExtractionStrategy';
-
-import { CoinAcademyNewsStrategy } from './CoinAcademyNewsStrategy';
 
 export class NewsExtractionStrategyFactory {
     private strategies: Map<string, new () => INewsExtractionStrategy> = new Map();
 
     constructor() {
-        this.registerStrategy('coinacademy', CoinAcademyNewsStrategy);
+        this.registerStrategy('coinacademy', CoinAcademy);
+        this.registerStrategy('journalducoin', JournalDuCoin);
+        this.registerStrategy('cointribune', CoinTribune);
+
     }
 
     registerStrategy(key: string, strategy: new () => INewsExtractionStrategy) {
