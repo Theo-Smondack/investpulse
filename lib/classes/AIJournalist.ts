@@ -1,6 +1,7 @@
 import { OpenAI } from 'openai';
 
 import { apiKey, systemPrompt } from '@/config/openai';
+import { scrapeUrls } from '@/config/puppeteer';
 
 export class AIJournalist {
     private openai: OpenAI;
@@ -12,6 +13,11 @@ export class AIJournalist {
     }
 
     async summarizeNews(scrapedNews: string | string[]): Promise<string | string[]> {
+        const article = await this.writeArticle(scrapedNews);
+        return [article, this.generateSourcesUrlList()].join('\n');
+    }
+
+    private async writeArticle(scrapedNews: string | string[]){
         scrapedNews = this.toArray(scrapedNews);
         try {
             const completion = await this.openai.chat.completions.create({
@@ -32,5 +38,14 @@ export class AIJournalist {
 
     private toArray(content: string | string[]): string[] {
         return Array.isArray(content) ? content : [content];
+    }
+
+    private generateSourcesUrlList(): string {
+        return `<ul>${
+            scrapeUrls.map(url => {
+                const { origin, hostname } = new URL(url);
+                return `<li><a href="${origin}" target="_blank" rel="noopener noreferrer">${hostname}</a></li>`;
+            }).join('')
+        }</ul>`;
     }
 }

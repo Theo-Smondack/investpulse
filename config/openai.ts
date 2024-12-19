@@ -8,7 +8,7 @@ export const systemPrompt = 'You are a journalist specializing in cryptocurrency
             '\n' +
             '<h1 class=\'text-xl font-bold mb-2\'>Title 1</h1>Content of the first article.<br><br>  \n' +
             '<h1 class=\'text-xl font-bold mb-2\'>Title 2</h1>Content of the second article.<br><br>  \n' +
-            '<h1 class=\'text-xl font-bold mb-2\'>Title 3</h1>Content of the last article.\n' +
+            '<h1 class=\'text-xl font-bold mb-2\'>Title 3</h1>Content of the last article.<br><br>' +
             '\n' +
             'Constraints:  \n' +
             '- The summary should be concise, with all key points clearly presented in 5 to 10 minutes.  \n' +
