@@ -1,6 +1,6 @@
 import React from 'react';
 
-import NavBar from '@/app/(front)/(ui)/nav-bar';
+import NavBar from '@/app/[locale]/(front)/(ui)/nav-bar';
 import { LayoutProps } from '@/types';
 
 const FrontLayout = ({ children }: LayoutProps) => {

@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import React, { FC, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -7,6 +8,7 @@ interface GenerateNewsButtonProps {
 }
 
 const GenerateNewsButton : FC<GenerateNewsButtonProps> = ({ callback }) => {
+    const t = useTranslations();
     const [loading, setLoading] = useState<boolean>(false);
 
     const onClickGenerate = async () => {
@@ -16,7 +18,14 @@ const GenerateNewsButton : FC<GenerateNewsButtonProps> = ({ callback }) => {
     }
 
     return (
-        <Button size="lg" className="md:text-2xl text-xl" onClick={onClickGenerate} loading={loading}>Generate</Button>
+        <Button
+            size="lg"
+            className="text-xl md:text-2xl"
+            onClick={onClickGenerate}
+            loading={loading}
+        >
+            {t('home.button.generate')}
+        </Button>
     );
 };
 

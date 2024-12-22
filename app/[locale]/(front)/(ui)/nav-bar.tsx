@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 
-import LogOutButton from '@/app/(front)/(ui)/log-out-button';
+import LogOutButton from '@/app/[locale]/(front)/(ui)/log-out-button';
 
 const NavBar = () => {
     return (
