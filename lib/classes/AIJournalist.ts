@@ -1,7 +1,9 @@
 import { OpenAI } from 'openai';
 
-import { apiKey, systemPrompt } from '@/config/openai';
+import { apiKey } from '@/config/openai';
 import { scrapeUrls } from '@/config/puppeteer';
+import { getLocaleCookie } from '@/i18n/cookies';
+import { getSystemPrompt } from '@/lib/openai';
 
 export class AIJournalist {
     private openai: OpenAI;
@@ -18,6 +20,8 @@ export class AIJournalist {
     }
 
     private async writeArticle(scrapedNews: string | string[]){
+        const locale = getLocaleCookie();
+        const systemPrompt = getSystemPrompt(locale);
         scrapedNews = this.toArray(scrapedNews);
         try {
             const completion = await this.openai.chat.completions.create({
