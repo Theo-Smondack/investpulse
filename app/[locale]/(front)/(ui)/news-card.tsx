@@ -9,7 +9,7 @@ interface NewsCardProps {
 
 const NewsCard: FC<NewsCardProps> = ({ news }) => {
     return (
-        <Card className="max-h-[60vh] w-full p-5 md:min-h-[60vh] md:w-9/12 2xl:w-1/2 overflow-auto">
+        <Card className="w-full p-5 h-[60vh] md:w-9/12 2xl:w-1/2 overflow-auto">
             <CardContent>
                 {news && (
                     <Typewriter
