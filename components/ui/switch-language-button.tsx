@@ -1,5 +1,4 @@
 import { useLocale } from 'next-intl';
-import React from 'react';
 
 import { Button } from '@/components/ui/button';
 import { locales, usePathname, useRouter } from '@/i18n/navigation';
