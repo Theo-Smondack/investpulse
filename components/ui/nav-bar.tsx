@@ -2,7 +2,7 @@
 
 import { FC } from 'react';
 
-import LogOutButton from '@/app/[locale]/(front)/(ui)/log-out-button';
+import LogOutButton from '@/components/ui/log-out-button';
 import SwitchLanguageButton from '@/components/ui/switch-language-button';
 import SwitchThemeButton from '@/components/ui/switch-theme-button';
 
