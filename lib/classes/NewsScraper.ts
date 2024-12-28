@@ -1,32 +1,32 @@
-import { Browser } from 'puppeteer-core';
-
+import { scrapeUrls } from '@/config/puppeteer';
 import { NewsExtractionStrategyFactory } from '@/lib/classes/NewsExtractionStrategyFactory';
+import PuppeteerBrowser from '@/lib/classes/PuppeteerBrowser';
 import { NewsArticle, ScraperOptions } from '@/types/classes/NewsScraper';
 
 export class NewsScraper {
     private strategyFactory: NewsExtractionStrategyFactory;
 
-    constructor(
-        private browserService: Browser,
-        strategyFactory?: NewsExtractionStrategyFactory,
-    ) {
+    constructor(strategyFactory?: NewsExtractionStrategyFactory) {
         this.strategyFactory = strategyFactory || new NewsExtractionStrategyFactory();
     }
 
-    async scrapeAll(urls: string[]): Promise<NewsArticle[]> {
+    async scrape(): Promise<NewsArticle[]> {
         const articles: NewsArticle[] = [];
-        for (const url of urls) {
-            articles.push(...await this.scrape({ url }));
-        }
+        await Promise.all(
+            scrapeUrls.map(async (url) => {
+                articles.push(...(await this.extractArticles({ url })));
+            }),
+        );
         return articles;
     }
 
-    private async scrape(options: ScraperOptions): Promise<NewsArticle[]> {
+    private async extractArticles(options: ScraperOptions): Promise<NewsArticle[]> {
         const strategyKey = this.extractStrategyKey(options.url);
         const extractionStrategy = this.strategyFactory.getStrategy(strategyKey);
 
-        const articles: NewsArticle[] = [];
-        const page = await this.browserService.newPage();
+        const browser = await PuppeteerBrowser.getInstance();
+
+        const page = await browser.newPage();
 
         try {
             await page.goto(options.url, {
@@ -35,25 +35,26 @@ export class NewsScraper {
             });
 
             const articleUrls = await extractionStrategy.extractArticleUrls(page);
+            const articles = await Promise.all(
+                articleUrls.slice(0, options.maxArticles ?? 4).map(async (articleUrl) => {
+                    const articlePage = await browser.newPage();
+                    try {
+                        await articlePage.goto(articleUrl, {
+                            waitUntil: 'networkidle0',
+                            timeout: options.timeout ?? 30000,
+                        });
 
-            for (const articleUrl of articleUrls.slice(0, options.maxArticles ?? 4)) {
-                const articlePage = await this.browserService.newPage();
-                try {
-                    await articlePage.goto(articleUrl, {
-                        waitUntil: 'networkidle0',
-                        timeout: options.timeout ?? 30000,
-                    });
-
-                    const content = await extractionStrategy.extractArticleContent(articlePage);
-                    articles.push({ url: articleUrl, content });
-                } catch (error) {
-                    console.error(`Failed to scrape ${articleUrl}:`, error);
-                } finally {
-                    await articlePage.close();
-                }
-            }
-
-            return articles;
+                        const content = await extractionStrategy.extractArticleContent(articlePage);
+                        return { url: articleUrl, content };
+                    } catch (error) {
+                        console.error(`Failed to scrape ${articleUrl}:`, error);
+                        return null;
+                    } finally {
+                        await articlePage.close();
+                    }
+                }),
+            );
+            return articles.filter((article): article is NewsArticle => article !== null);
         } catch (error) {
             console.error('Failed to scrape data:', error);
             throw error;

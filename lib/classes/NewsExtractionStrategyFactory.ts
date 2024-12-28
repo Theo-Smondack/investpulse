@@ -8,7 +8,6 @@ export class NewsExtractionStrategyFactory {
         this.registerStrategy('coinacademy', CoinAcademy);
         this.registerStrategy('journalducoin', JournalDuCoin);
         this.registerStrategy('cointribune', CoinTribune);
-
     }
 
     private registerStrategy(key: string, strategy: new () => INewsExtractionStrategy) {

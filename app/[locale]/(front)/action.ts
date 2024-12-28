@@ -1,11 +1,9 @@
 'use server';
 
 import { signOut } from '@/auth';
-import { scrapeUrls } from '@/config/puppeteer';
 import { DEFAULT_LOGOUT_REDIRECT } from '@/config/routes';
 import { AIJournalist } from '@/lib/classes/AIJournalist';
 import { NewsScraper } from '@/lib/classes/NewsScraper';
-import { getBrowser } from '@/lib/puppeteer';
 
 export async function logout() {
     await signOut({
@@ -20,13 +18,14 @@ interface GetNewsResponse {
 
 export async function getNews(): Promise<GetNewsResponse> {
     try {
-        const browserService = await getBrowser();
-        const newsScraper = new NewsScraper(browserService);
+        const newsScraper = new NewsScraper();
         const aiJournalist = new AIJournalist();
 
-        const articles = await newsScraper.scrapeAll(scrapeUrls);
+        const articles = await newsScraper.scrape();
 
-        const scrapedNews : string[] | string = Array.from(articles, article => article.content.join('\n'));
+        const scrapedNews: string[] | string = Array.from(articles, (article) =>
+            article.content.join('\n'),
+        );
 
         const news = await aiJournalist.summarizeNews(scrapedNews);
 
