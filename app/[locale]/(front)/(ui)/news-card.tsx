@@ -1,30 +1,32 @@
-import React, { FC } from 'react';
-import Typewriter from 'typewriter-effect';
+'use client';
 
+import { FC } from 'react';
+
+import LoadingTypewriter from '@/app/[locale]/(front)/(ui)/loading-typewriter';
 import { Card, CardContent } from '@/components/ui/card';
+import CustomTypewriter from '@/components/ui/custom-typewriter';
 
 interface NewsCardProps {
     news?: string | string[];
+    isLoading?: boolean;
 }
 
-const NewsCard: FC<NewsCardProps> = ({ news }) => {
+const NewsCard: FC<NewsCardProps> = ({ news, isLoading }) => {
+    const formattedNews = typeof news === 'string' ? news : news?.join('<br><br>');
     return (
-        <Card className="w-full p-5 h-[60vh] md:w-9/12 2xl:w-1/2 overflow-auto">
+        <Card className="h-[60vh] w-full overflow-auto p-5 md:w-9/12 2xl:w-1/2">
             <CardContent>
-                {news && (
-                    <Typewriter
-                        options={{
-                            wrapperClassName: 'text-lg',
-                            delay: 2,
-                        }}
-                        onInit={(typewriter) => {
-                            typewriter
-                                .start()
-                                .typeString(typeof news === 'string' ? news : news.join('<br><br>'))
-                        }}
-                    />
+                {isLoading ? (
+                    <LoadingTypewriter />
+                ) : (
+                    news && (
+                        <CustomTypewriter
+                            typeString={formattedNews}
+                            delay={2}
+                            hideCursorOnComplete
+                        />
                     )
-                }
+                )}
             </CardContent>
         </Card>
     );

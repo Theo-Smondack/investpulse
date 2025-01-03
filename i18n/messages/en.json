@@ -1,9 +1,9 @@
 {
   "navbar": {
-    "logout" : "Log out"
+    "logout": "Log out"
   },
-  "login" : {
-    "title" : "Login",
+  "login": {
+    "title": "Login",
     "email": {
       "label": "Email address",
       "placeholder": "Enter your email address..."
@@ -15,7 +15,7 @@
     "button": "Login",
     "message": {
       "success": "Logged in successfully",
-      "error":{
+      "error": {
         "user-not-found": "User not found",
         "invalid-password": "Invalid password",
         "invalid-email-address": "Invalid email address",
@@ -24,10 +24,15 @@
       }
     }
   },
-  "home" :{
+  "home": {
     "title": "Click on generate to get news about cryptocurrency market !",
-    "button" : {
-      "generate" : "Generate"
+    "button": {
+      "generate": "Generate"
+    },
+    "news-card": {
+      "typewriter": {
+        "fetching": "Fetching news"
+      }
     }
   }
 }
