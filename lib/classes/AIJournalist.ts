@@ -19,7 +19,7 @@ export class AIJournalist {
         return [article, this.generateSourcesUrlList()].join('\n');
     }
 
-    private async writeArticle(scrapedNews: string | string[]){
+    private async writeArticle(scrapedNews: string | string[]) {
         const locale = getLocaleCookie();
         const systemPrompt = getSystemPrompt(locale);
         scrapedNews = this.toArray(scrapedNews);
@@ -33,7 +33,6 @@ export class AIJournalist {
                 temperature: 0.7,
             });
             return completion.choices[0].message.content ?? scrapedNews;
-
         } catch (error) {
             console.error('Failed to summarize news:', error);
             return scrapedNews;
@@ -45,11 +44,12 @@ export class AIJournalist {
     }
 
     private generateSourcesUrlList(): string {
-        return `<ul>${
-            scrapeUrls.map(url => {
+        return scrapeUrls
+            .map((url) => {
                 const { origin, hostname } = new URL(url);
-                return `<li><a href="${origin}" target="_blank" rel="noopener noreferrer">${hostname}</a></li>`;
-            }).join('')
-        }</ul>`;
+                return `<span><a href="${origin}" target="_blank" rel="noopener noreferrer">${hostname}</a></span>`;
+            })
+            .join('<br>')
+            .slice(0, -4);
     }
 }

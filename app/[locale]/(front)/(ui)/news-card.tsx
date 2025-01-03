@@ -12,7 +12,7 @@ interface NewsCardProps {
 }
 
 const NewsCard: FC<NewsCardProps> = ({ news, isLoading }) => {
-    const formattedNews = typeof news === 'string' ? news : news?.join('<br><br>');
+    const formattedNews = typeof news === 'string' ? news : news?.join('');
     return (
         <Card className="h-[60vh] w-full overflow-auto p-5 md:w-9/12 2xl:w-1/2">
             <CardContent>
