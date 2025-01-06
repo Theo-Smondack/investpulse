@@ -4,6 +4,7 @@ include .env
 PWD=$(shell pwd)
 COMPOSE=docker compose
 EXECNEXT=$(COMPOSE) exec next
+EXECNODE=$(COMPOSE) exec node
 EXECPG=$(COMPOSE) exec postgres
 
 ## All commands available in the Makefile
@@ -33,6 +34,14 @@ down: ## Stop and remove containers project
 
 restart: ## Restart containers project
 	$(COMPOSE) restart
+
+build-node: ## Build the node container
+	$(COMPOSE) build --force-rm node
+
+up-recreate-node: ## Start the node container
+	$(COMPOSE) up -d node
+
+start-node: build-node up-recreate-node ## Start the node container
 
 ##@ SSH
 ssh: ## SSH into the next container
@@ -107,6 +116,13 @@ db-rollback-migration: ## Rollback a database migration
 db-seed: ## Seed the database
 	$(EXECNEXT) yarn prisma db seed
 
+###@ Node server
+node-ssh: ## Start the node server
+	$(EXECNODE) sh
+
+node-test: ## Run the node tests
+	$(EXECNODE) yarn test
+
 ##@ Containers
 list-containers: ## List all containers
 	docker compose ps -a
@@ -120,3 +136,6 @@ logs-next: ## Show logs for the next container
 
 logs-pg: ## Show logs for the postgres container
 	$(COMPOSE) logs postgres
+
+logs-node: ## Show logs for the node container
+	$(COMPOSE) logs --since 1m -f node

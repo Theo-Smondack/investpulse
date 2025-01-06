@@ -18,6 +18,7 @@ services:
         depends_on:
             - postgres
             - minio
+            - node
 
     postgres:
         image: postgres:17
@@ -44,3 +45,20 @@ services:
             - '9001:9001'
         volumes:
             - ./data/minio:/data
+
+    node:
+        build:
+            context: ${NODE_PROJECT_PATH:?err}
+            dockerfile: ./docker/node/Dockerfile
+            platforms:
+                - linux/amd64
+        env_file:
+            - ${NODE_PROJECT_PATH:?err}/.env
+        restart: unless-stopped
+        container_name: '${NODE_CONTAINER_NAME:?err}'
+        stdin_open: true
+        tty: true
+        ports:
+            - '8000:8000'
+        volumes:
+            - ${NODE_PROJECT_PATH:?err}:/home/node/app
