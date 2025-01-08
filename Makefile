@@ -35,14 +35,6 @@ down: ## Stop and remove containers project
 restart: ## Restart containers project
 	$(COMPOSE) restart
 
-build-node: ## Build the node container
-	$(COMPOSE) build --force-rm node
-
-up-recreate-node: ## Start the node container
-	$(COMPOSE) up -d node
-
-start-node: build-node up-recreate-node ## Start the node container
-
 ##@ SSH
 ssh: ## SSH into the next container
 	$(EXECNEXT) sh
@@ -116,8 +108,16 @@ db-rollback-migration: ## Rollback a database migration
 db-seed: ## Seed the database
 	$(EXECNEXT) yarn prisma db seed
 
-###@ Node server
-node-ssh: ## Start the node server
+##@ Node server
+build-node: ## Build the node container
+	$(COMPOSE) build --force-rm node
+
+up-recreate-node: ## Recreate the node container
+	$(COMPOSE) up -d node
+
+start-node: build-node up-recreate-node ## Start the node container
+
+node-ssh: ## Open a shell in the node container
 	$(EXECNODE) sh
 
 node-test: ## Run the node tests
