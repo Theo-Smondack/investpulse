@@ -33,6 +33,58 @@ services:
         volumes:
             - ./data/postgresql:/var/lib/postgresql/data
 
+    mongo-rs0:
+        build:
+            context: .
+            dockerfile: docker/mongo/mongo_rs0/Dockerfile
+        restart: unless-stopped
+        container_name: '${MONGO_CONTAINER_NAME:?err}-rs0'
+        healthcheck:
+            test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+            interval: 10s
+            timeout: 10s
+            retries: 5
+        ports:
+            - '27017:27017'
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: '${MONGO_INITDB_ROOT_USERNAME:?err}'
+            MONGO_INITDB_ROOT_PASSWORD: '${MONGO_INITDB_ROOT_PASSWORD:?err}'
+            MONGO_INITDB_DATABASE: '${MONGO_INITDB_DATABASE:?err}'
+            MONGO_INITDB_COLLECTION: '${MONGO_INITDB_COLLECTION:?err}'
+            MONGO_HOST_RS0: '${MONGO_HOST_RS0:?err}'
+            MONGO_PORT_RS0: '${MONGO_PORT_RS0:?err}'
+            MONGO_HOST_RS1: '${MONGO_HOST_RS1:?err}'
+            MONGO_PORT_RS1: '${MONGO_PORT_RS1:?err}'
+        networks:
+            - mongo-cluster
+        volumes:
+            - ./rs_keyfile:/etc/mongodb/pki/keyfile
+            - ./data/mongo-rs0:/data/db
+
+    mongo-rs1:
+        build:
+            context: .
+            dockerfile: docker/mongo/mongo_rs1/Dockerfile
+        restart: unless-stopped
+        container_name: '${MONGO_CONTAINER_NAME:?err}-rs1'
+        ports:
+            - '27018:27018'
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: '${MONGO_INITDB_ROOT_USERNAME:?err}'
+            MONGO_INITDB_ROOT_PASSWORD: '${MONGO_INITDB_ROOT_PASSWORD:?err}'
+            MONGO_HOST_RS0: '${MONGO_HOST_RS0:?err}'
+            MONGO_PORT_RS0: '${MONGO_PORT_RS0:?err}'
+            MONGO_HOST_RS1: '${MONGO_HOST_RS1:?err}'
+            MONGO_PORT_RS1: '${MONGO_PORT_RS1:?err}'
+        networks:
+            - mongo-cluster
+        volumes:
+            - ./rs_keyfile:/etc/mongodb/pki/keyfile
+            - ./data/mongo_rs1:/data/db
+        depends_on:
+            mongo-rs0:
+                condition: service_healthy
+
     minio:
         container_name: '${MINIO_CONTAINER_NAME:?err}'
         image: minio/minio
@@ -62,3 +114,14 @@ services:
             - '8000:8000'
         volumes:
             - ${NODE_PROJECT_PATH:?err}:/home/node/app
+        depends_on:
+            - postgres
+            - mongo-rs0
+            - mongo-rs1
+            - minio
+        networks:
+            - mongo-cluster
+networks:
+    mongo-cluster:
+        driver: bridge
+
