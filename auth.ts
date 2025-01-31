@@ -7,7 +7,7 @@ import { getTranslations } from 'next-intl/server';
 import { ZodError } from 'zod';
 
 import { getLocaleCookie } from '@/i18n/cookies';
-import prisma from '@/prisma/prisma';
+import { prismaPostgres } from '@/prisma/prisma';
 import { getLoginSchema } from '@/schema/login';
 
 export class InvalidLoginError extends CredentialsSignin {
@@ -19,7 +19,7 @@ export class InvalidLoginError extends CredentialsSignin {
 }
 
 async function getUserFromDb(email: string) {
-    return prisma.user.findUnique({
+    return prismaPostgres.user.findUnique({
         where: {
             email,
         },
@@ -69,7 +69,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     session: {
         strategy: 'jwt',
     },
-    adapter: PrismaAdapter(prisma),
+    adapter: PrismaAdapter({ prisma: prismaPostgres }),
     providers: [credentials],
     secret: process.env.AUTH_SECRET,
     callbacks: {
@@ -80,9 +80,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             if (url.startsWith('/')) return `${baseUrl}/${locale}${url}`;
 
             // Allows callback URLs on the same origin
-            if (new URL(url).origin === baseUrl) return url
+            if (new URL(url).origin === baseUrl) return url;
 
-            return baseUrl
+            return baseUrl;
         },
     },
 });

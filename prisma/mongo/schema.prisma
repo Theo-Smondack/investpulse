@@ -1,0 +1,20 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../../node_modules/@prisma/mongo/client"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONDODB_URL")
+}
+
+model Article {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  provider String
+  content  String
+  url      String @unique
+
+  @@index([content, provider, url])
+  @@map("articles")
+}

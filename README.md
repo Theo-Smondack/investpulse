@@ -5,7 +5,7 @@
 
 Create a `.env` file and add docker variables.
 
-```bash
+```dotenv
 #### PROJECT ####
 PROJECT_NAME=$YOUR_PROJECT_NAME$
 PROJECT_DESCRIPTION=$YOUR_PROJECT_DESCRIPTION$
@@ -32,14 +32,14 @@ MONGO_HOST_RS0=$YOUR_MONGO_HOST_RS0$
 MONGO_PORT_RS0=$YOUR_MONGO_PORT_RS0$
 MONGO_HOST_RS1=$YOUR_MONGO_HOST_RS1$
 MONGO_PORT_RS1=$YOUR_MONGO_PORT_RS1$
+MONDODB_URL=$YOUR_MONGODB_URL$
 ##################
 
 #### POSTGRE ####
-DATABASE_URL=$YOUR_DATABASE_URL$ # Contains the POSTGRES_CONTAINER_NAME
-DATABASE_SEED_URL=$YOUR_DATABASE_SEED_URL$
 POSTGRES_USER=$YOUR_POSTGRES_USER$
 POSTGRES_PASSWORD=$YOUR_POSTGRES_PASSWORD$
 POSTGRES_DB=$YOUR_POSTGRES_DB$
+POSTGRES_URL=$YOUR_DATABASE_URL$ # Contains the POSTGRES_CONTAINER_NAME
 ##################
 
 ##### AUTH ######
@@ -83,17 +83,6 @@ Run the following command to seed the database.
 ```bash
 make db-seed
 ```
-
-
-## Initialize puppeteer
-
-We use `@sparticuz/chromium` as the default browser for puppeteer ([See documentation](https://www.npmjs.com/package/@sparticuz/chromium)). To initialize puppeteer, first check the latest browser version available.
-
-Example:  
-If you use `@sparticuz/chromium@131` the version of `puppeteer-core` should be `23.8.0` relate to this [page](https://pptr.dev/supported-browsers).
-
-Then, download the matching version of chromium [here](https://github.com/Sparticuz/chromium/releases) (Relate to the example it should be `chromium-v131.0.0-pack.tar
-`) and put it in your MinIO bucket to simulate AWS S3 environment.
 
 
 ## Configure Mongo Compass

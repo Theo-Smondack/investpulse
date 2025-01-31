@@ -1,8 +1,7 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/postgres/client';
 
-// Init new prisma client
-const prismaSeedClient = new PrismaClient({
-    datasourceUrl: process.env.DATABASE_URL,
+const seedClient = new PrismaClient({
+    datasourceUrl: process.env.POSTGRES_URL,
 });
 
 const defaultUser: Prisma.UserCreateInput = {
@@ -13,7 +12,7 @@ const defaultUser: Prisma.UserCreateInput = {
 async function main() {
     //Seed the database
     console.log('Seeding database...');
-    await prismaSeedClient.user.upsert({
+    await seedClient.user.upsert({
         where: { email: defaultUser.email },
         update: {
             password: defaultUser.password,
@@ -24,10 +23,10 @@ async function main() {
 }
 main()
     .then(async () => {
-        await prismaSeedClient.$disconnect();
+        await seedClient.$disconnect();
     })
     .catch(async (e) => {
         console.error(e);
-        await prismaSeedClient.$disconnect();
+        await seedClient.$disconnect();
         process.exit(1);
     });

@@ -6,6 +6,7 @@ COMPOSE=docker compose
 EXECNEXT=$(COMPOSE) exec next
 EXECNODE=$(COMPOSE) exec node
 EXECPG=$(COMPOSE) exec postgres
+PRISMA_PG_DIR=prisma/postgres
 EXECMONGO_RS0=$(COMPOSE) exec mongo-rs0
 EXECMONGO_RS1=$(COMPOSE) exec mongo-rs1
 MONGO_AUTH_STRING=-u ${MONGO_INITDB_ROOT_USERNAME} -p ${MONGO_INITDB_ROOT_PASSWORD}
@@ -90,39 +91,39 @@ next-build: ## Build the Next.js App
 next-start: ## Start the Next.js App (build)
 	$(EXECNEXT) yarn start
 
-##@ Database
+##@ Postgres database
 db-reset: db-drop db-create db-pull ## Reset the database
 
 db-drop: ## Drop the database
 	$(EXECPG) dropdb ${POSTGRES_DB}
 
 db-create: ## Create the database
-	$(EXECPG) createdb ${POSTGRES_DB} && $(EXECNEXT) yarn prisma db push
+	$(EXECPG) createdb ${POSTGRES_DB} && $(EXECNEXT) yarn prisma:postgres:dbpush
 
 db-pull: ## Pull the database
-	$(EXECNEXT) yarn prisma db pull
+	$(EXECNEXT) yarn prisma:postgres:dbpull
 
 db-migrate: ## Migrate the database
-	$(EXECNEXT) yarn prisma migrate dev;
+	$(EXECNEXT) yarn postgres:migrate:dev;
 
 db-create-migration: ## Create database migration
 	@echo "Please enter the migration name:"; \
 	read name; \
-	$(EXECNEXT) yarn prisma migrate diff --from-schema-datamodel prisma/schema.prisma --to-schema-datasource prisma/schema.prisma --script > down.sql; \
-	$(EXECNEXT) yarn prisma migrate dev --create-only --name $$name;\
+	$(EXECNEXT) yarn prisma migrate diff --from-schema-datamodel $(PRISMA_PG_DIR)/schema.prisma --to-schema-datasource $(PRISMA_PG_DIR)/schema.prisma --script > down.sql; \
+	$(EXECNEXT) yarn prisma migrate dev --schema $(PRISMA_PG_DIR)/schema.prisma --create-only --name $$name;\
 	search_name=$$(echo "$$name" | sed 's/[ -]/_/g'); \
-	matching_folder=$$(find prisma/migrations -type d -name "*$$search_name*"); \
+	matching_folder=$$(find $(PRISMA_PG_DIR)/migrations -type d -name "*$$search_name*"); \
 	mv down.sql $$matching_folder; \
 
 db-rollback-migration: ## Rollback a database migration
 	@echo "Please enter the migration name to rollback:"; \
 	read name; \
 	search_name=$$(echo "$$name" | sed 's/[ -]/_/g'); \
-	matching_folder=$$(find prisma/migrations -type d -name "*$$search_name*"); \
+	matching_folder=$$(find $(PRISMA_PG_DIR)/migrations -type d -name "*$$search_name*"); \
 	if [ -n "$$matching_folder" ]; then \
 		  migration_name=$$(basename "$$matching_folder"); \
     	  echo "Found migration folder: $$matching_folder"; \
-    	  $(EXECNEXT) yarn prisma db execute --file "$$matching_folder/down.sql" --schema prisma/schema.prisma; \
+    	  $(EXECNEXT) yarn prisma db execute --file "$$matching_folder/down.sql" --schema $(PRISMA_PG_DIR)/schema.prisma; \
     	  $(EXECNEXT) yarn prisma migrate resolve --rolled-back "$$migration_name"; \
     	else \
     	  echo "No matching migration folder found for: $$name"; \
@@ -156,6 +157,10 @@ mongo-stats: ## Show the mongo stats
 
 mongo-repl-status: ## Show the mongo replica set status
 	$(EXECMONGO_RS0_SHELL) --eval "rs.status();"
+
+##@ Prisma
+prisma-generate: ## Generate the Prisma client
+	$(EXECNEXT) yarn prisma:generate:db_clients
 
 ##@ Node server
 build-node: ## Build the node container
