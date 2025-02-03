@@ -3,7 +3,6 @@
 import { signOut } from '@/auth';
 import { DEFAULT_LOGOUT_REDIRECT } from '@/config/routes';
 import { AIJournalist } from '@/lib/classes/AIJournalist';
-import { NewsScraper } from '@/lib/classes/NewsScraper';
 
 export async function logout() {
     await signOut({
@@ -18,17 +17,8 @@ interface GetNewsResponse {
 
 export async function getNews(): Promise<GetNewsResponse> {
     try {
-        const newsScraper = new NewsScraper();
         const aiJournalist = new AIJournalist();
-
-        const articles = await newsScraper.scrape();
-
-        const scrapedNews: string[] | string = Array.from(articles, (article) =>
-            article.content.join('\n'),
-        );
-
-        const news = await aiJournalist.summarizeNews(scrapedNews);
-
+        const news = await aiJournalist.summarizeNews();
         return { news };
     } catch (error) {
         console.error(error);

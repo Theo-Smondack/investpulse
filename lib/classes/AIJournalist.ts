@@ -4,6 +4,7 @@ import { apiKey } from '@/config/openai';
 import { scrapeUrls } from '@/config/puppeteer';
 import { getLocaleCookie } from '@/i18n/cookies';
 import { getSystemPrompt } from '@/lib/openai';
+import { getAllArticles } from '@/services/article';
 
 export class AIJournalist {
     private openai: OpenAI;
@@ -14,9 +15,10 @@ export class AIJournalist {
         });
     }
 
-    async summarizeNews(scrapedNews: string | string[]): Promise<string | string[]> {
-        const article = await this.writeArticle(scrapedNews);
-        return [article, this.generateSourcesUrlList()].join('\n');
+    async summarizeNews(): Promise<string | string[]> {
+        const articlesContent = await this.getArticlesContent();
+        const article = await this.writeArticle(articlesContent);
+        return [article, this.generateSourcesUrlList()].join('<br>');
     }
 
     private async writeArticle(scrapedNews: string | string[]) {
@@ -37,6 +39,11 @@ export class AIJournalist {
             console.error('Failed to summarize news:', error);
             return scrapedNews;
         }
+    }
+
+    private async getArticlesContent(): Promise<string[]> {
+        const articles = await getAllArticles();
+        return Array.from(articles, (article) => article.content);
     }
 
     private toArray(content: string | string[]): string[] {
