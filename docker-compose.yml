@@ -3,16 +3,12 @@ services:
         build:
             context: .
             dockerfile: ./docker/next/Dockerfile
-            platforms:
-                - linux/amd64
         env_file:
             - .env
         restart: unless-stopped
         container_name: '${NEXT_CONTAINER_NAME:?err}'
         stdin_open: true
         tty: true
-        ports:
-            - '3000:3000'
         volumes:
             - .:/home/node/app
         depends_on:
@@ -21,6 +17,27 @@ services:
             - mongo-rs1
             - minio
             - node
+        extra_hosts:
+            - ${SERVER_NAME:?err}:127.0.0.1
+    nginx:
+        build:
+            context: .
+            dockerfile: ./docker/nginx/Dockerfile
+        environment:
+            NEXT_CONTAINER_NAME: '${NEXT_CONTAINER_NAME:?err}'
+            NGINX_CONTAINER_NAME : '${NGINX_CONTAINER_NAME:?err}'
+            SERVER_NAME: '${SERVER_NAME:?err}'
+        restart: unless-stopped
+        container_name: '${NGINX_CONTAINER_NAME:?err}'
+        hostname: 'nginx'
+        ports:
+            - '80:80'
+            - '443:443'
+        volumes:
+            - ./docker/nginx/snippets:/etc/nginx/snippets
+            - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+        depends_on:
+            - next
 
     postgres:
         image: postgres:17

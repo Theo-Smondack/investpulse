@@ -1,0 +1,17 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${SERVER_NAME};
+    return 301 https://${DOLLAR}server_name${DOLLAR}request_uri;
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name ${SERVER_NAME};
+    include snippets/self-signed.conf;
+
+    location / {
+        proxy_pass http://${NEXT_CONTAINER_NAME}:3000;
+    }
+}

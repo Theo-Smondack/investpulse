@@ -5,6 +5,7 @@ PWD=$(shell pwd)
 COMPOSE=docker compose
 EXECNEXT=$(COMPOSE) exec next
 EXECNODE=$(COMPOSE) exec node
+EXECNGINX=$(COMPOSE) exec nginx
 EXECPG=$(COMPOSE) exec postgres
 PRISMA_PG_DIR=prisma/postgres
 EXECMONGO_RS0=$(COMPOSE) exec mongo-rs0
@@ -67,6 +68,9 @@ ssh-mongo-rs1: ## SSH into the mongo-rs1 container
 ssh-node: ## SSH into the node container
 	$(EXECNODE) bash
 
+ssh-nginx: ## SSH into the nginx container
+	$(EXECNGINX) bash
+
 ##@ Installation
 yarn: ## Install the Next.js App dependencies into the next container
 	$(EXECNEXT) yarn install
@@ -83,10 +87,13 @@ update: ## Update the Next.js App dependencies
 	$(EXECNEXT) npx npm-check-updates -i
 
 ##@ Build & Preview
-build-start: next-build next-start ## Build and start the Next.js App
+build-start: next-build-prod next-start ## Build and start the Next.js App
 
-next-build: ## Build the Next.js App
-	$(EXECNEXT) yarn build
+next-build-dev: ## Build the Next.js App
+	$(EXECNEXT) yarn build:dev
+
+next-build-prod: ## Build the Next.js App
+	$(EXECNEXT) yarn build:prod
 
 next-start: ## Start the Next.js App (build)
 	$(EXECNEXT) yarn start
@@ -169,11 +176,25 @@ build-node: ## Build the node container
 up-recreate-node: ## Recreate the node container
 	$(COMPOSE) up -d node
 
-start-node: build-node up-recreate-node ## Start the node container
+down-node: ## Stop and remove the node container
+	$(COMPOSE) down node
+
+start-node: down-node build-node up-recreate-node ## Start the node container
 
 node-test: ## Run the node tests
 	$(EXECNODE) npm run test
 
+##@ Nginx
+build-nginx: ## Build the nginx container
+	$(COMPOSE) build --force-rm nginx
+
+up-recreate-nginx: ## Recreate the nginx container
+	$(COMPOSE) up -d nginx
+
+down-nginx: ## Stop and remove the nginx container
+	$(COMPOSE) down nginx
+
+start-nginx: down-nginx build-nginx up-recreate-nginx ## Start the nginx container
 ##@ Containers
 list-containers: ## List all containers
 	docker compose ps -a
@@ -196,3 +217,6 @@ logs-pg: ## Show logs for the postgres container
 
 logs-node: ## Show logs for the node container
 	$(COMPOSE) logs --since 1m -f node
+
+logs-nginx: ## Show logs for the nginx container
+	$(COMPOSE) logs --since 1m -f nginx
