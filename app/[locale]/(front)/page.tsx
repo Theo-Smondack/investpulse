@@ -1,15 +1,33 @@
 'use client';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
+import { useJsonStream } from 'stream-hooks';
+import { StartStreamArgs } from 'stream-hooks/dist/types';
 
 import GenerateNewsButton from '@/app/[locale]/(front)/(ui)/generate-news-button';
 import NewsCard from '@/app/[locale]/(front)/(ui)/news-card';
-import { getNews } from '@/app/[locale]/(front)/action';
+import { newsApiRoute } from '@/config/routes';
+import { newsSummarySchema } from '@/schema/news';
+import { NewsArray } from '@/types/schema/news';
+
+const streamArgs: StartStreamArgs = {
+    url: newsApiRoute,
+    method: 'GET',
+};
 
 export default function Home() {
     const t = useTranslations('home');
-    const [news, setNews] = useState<string | string[] | undefined>(undefined);
+    const [news, setNews] = useState<NewsArray | undefined>(undefined);
     const [loading, setLoading] = useState(false);
+    const { startStream } = useJsonStream({
+        schema: newsSummarySchema,
+        onReceive: (chunk) => {
+            if (chunk.news?.length && chunk.news.length > 0) {
+                setLoading(false);
+            }
+            setNews(chunk.news);
+        },
+    });
 
     const clearNews = () => {
         setNews(undefined);
@@ -18,11 +36,10 @@ export default function Home() {
     const updateNews = async () => {
         setLoading(true);
         clearNews();
-        const res = await getNews();
-        setLoading(false);
-        if (res.news) {
-            setNews(res.news);
-            return;
+        try {
+            await startStream(streamArgs);
+        } catch (e) {
+            console.error(e);
         }
     };
 

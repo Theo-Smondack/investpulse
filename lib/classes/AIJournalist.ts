@@ -1,9 +1,10 @@
 import { OpenAI } from 'openai';
+import { withResponseModel } from 'zod-stream';
 
 import { apiKey } from '@/config/openai';
-import { scrapeUrls } from '@/config/puppeteer';
 import { getLocaleCookie } from '@/i18n/cookies';
 import { getSystemPrompt } from '@/lib/openai';
+import { newsSummarySchema } from '@/schema/news';
 import { getAllArticles } from '@/services/article';
 
 export class AIJournalist {
@@ -15,48 +16,47 @@ export class AIJournalist {
         });
     }
 
-    async summarizeNews(): Promise<string | string[]> {
+    async summarizeNews() {
         const articlesContent = await this.getArticlesContent();
-        const article = await this.writeArticle(articlesContent);
-        return [article, this.generateSourcesUrlList()].join('<br>');
+        return await this.writeArticle(articlesContent);
     }
 
-    private async writeArticle(scrapedNews: string | string[]) {
+    private async writeArticle(content: string[]) {
         const locale = getLocaleCookie();
         const systemPrompt = getSystemPrompt(locale);
-        scrapedNews = this.toArray(scrapedNews);
         try {
-            const completion = await this.openai.chat.completions.create({
-                model: 'gpt-4o-mini',
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    { role: 'user', content: scrapedNews.join('\n') },
-                ],
-                temperature: 0.7,
+            const params = withResponseModel({
+                response_model: {
+                    schema: newsSummarySchema,
+                    name: 'news',
+                },
+                params: {
+                    model: 'gpt-4o-mini',
+                    messages: [
+                        {
+                            role: 'system',
+                            content: systemPrompt,
+                        },
+                        {
+                            role: 'user',
+                            content: content.join('\n'),
+                        },
+                    ],
+                    temperature: 0.7,
+                    stream: true,
+                },
+                mode: 'TOOLS',
             });
-            return completion.choices[0].message.content ?? scrapedNews;
+
+            return await this.openai.chat.completions.create(params);
         } catch (error) {
             console.error('Failed to summarize news:', error);
-            return scrapedNews;
+            throw error;
         }
     }
 
     private async getArticlesContent(): Promise<string[]> {
         const articles = await getAllArticles();
         return Array.from(articles, (article) => article.content);
-    }
-
-    private toArray(content: string | string[]): string[] {
-        return Array.isArray(content) ? content : [content];
-    }
-
-    private generateSourcesUrlList(): string {
-        return scrapeUrls
-            .map((url) => {
-                const { origin, hostname } = new URL(url);
-                return `<span><a href="${origin}" target="_blank" rel="noopener noreferrer">${hostname}</a></span>`;
-            })
-            .join('<br>')
-            .slice(0, -4);
     }
 }

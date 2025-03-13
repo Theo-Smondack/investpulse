@@ -22,3 +22,5 @@ export const DEFAULT_LOGIN_REDIRECT = '/';
  * @type {string}
  */
 export const DEFAULT_LOGOUT_REDIRECT = '/login';
+
+export const newsApiRoute = `${DEFAULT_API_ROUTES}/news`;

@@ -4679,6 +4679,11 @@ raf@^3.4.1:
   dependencies:
     performance-now "^2.1.0"
 
+ramda@^0.29.0:
+  version "0.29.1"
+  resolved "https://registry.yarnpkg.com/ramda/-/ramda-0.29.1.tgz#408a6165b9555b7ba2fc62555804b6c5a2eca196"
+  integrity sha512-OfxIeWzd4xdUNxlWhgFazxsA/nl3mS4/jGZI5n00uWOoSSFRhC1b6gl6xvmzUamgmqELraWp0J/qqVlXYPDPyA==
+
 react-dom@^18:
   version "18.3.1"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-18.3.1.tgz#c2265d79511b57d479b3dd3fdfa51536494c5cb4"
@@ -4860,6 +4865,13 @@ scheduler@^0.23.2:
   dependencies:
     loose-envify "^1.1.0"
 
+schema-stream@^3.2.2:
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/schema-stream/-/schema-stream-3.2.2.tgz#65c025c02e7cf6fa87aeb30c5ff6d4b4f058ee8a"
+  integrity sha512-7hwI/4lbo8sOs7sRbKW9Bh+5qPHOj12tVpskHq1tYakVlWEpdLgeEKXXgzGLaAP1Bw+DcoB4DmdA7/nSxGI5OA==
+  dependencies:
+    ramda "^0.29.0"
+
 "semver@2 || 3 || 4 || 5":
   version "5.7.2"
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.7.2.tgz#48d55db737c3287cd4835e17fa13feace1c41ef8"
@@ -5006,6 +5018,11 @@ stop-iteration-iterator@^1.0.0:
   integrity sha512-iCGQj+0l0HOdZ2AEeBADlsRC+vsnDsZsbdSiH1yNSjcfKM7fdpCMfqAL/dwF5BLiw/XhRft/Wax6zQbhq2BcjQ==
   dependencies:
     internal-slot "^1.0.4"
+
+stream-hooks@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/stream-hooks/-/stream-hooks-3.0.0.tgz#7fc431d6ff666eedad395dc5c95ccb549b365c34"
+  integrity sha512-tjQRKJ3q0bFQf1RsoFKJ/AzP8dexwXIRbGGFvWSgJeN0I3K06RiOvNBAnMnh+hyf88D+ZTZvggQFMoi7cf7ZOA==
 
 streamsearch@^1.1.0:
   version "1.1.0"
@@ -5677,6 +5694,19 @@ yocto-queue@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz#0294eb3dee05028d31ee1a5fa2c556a6aaf10a1b"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
+
+zod-stream@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/zod-stream/-/zod-stream-3.0.0.tgz#caa8e3d67217f5d1dce8cc170c413b615b42ddf0"
+  integrity sha512-BfW8KI+FCEMQOAIf8Qgc2q67iZ+LZ/zzk7alU45FWiZIrBSt0JMxNVGuc3o1yTpGFVk3zXiHt3TZvmUiad/9nw==
+  dependencies:
+    schema-stream "^3.2.2"
+    zod-to-json-schema "^3.23.1"
+
+zod-to-json-schema@^3.23.1:
+  version "3.24.2"
+  resolved "https://registry.yarnpkg.com/zod-to-json-schema/-/zod-to-json-schema-3.24.2.tgz#0e24e4a963ab34cf4211ef5227e342c0c6eddb79"
+  integrity sha512-pNUqrcSxuuB3/+jBbU8qKUbTbDqYUaG1vf5cXFjbhGgoUuA1amO/y4Q8lzfOhHU8HNPK6VFJ18lBDKj3OHyDsg==
 
 zod@3.23.8, zod@^3.23.8:
   version "3.23.8"
