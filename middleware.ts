@@ -1,4 +1,5 @@
 import { NextURL } from 'next/dist/server/web/next-url';
+import { headers } from 'next/headers';
 import createMiddleware from 'next-intl/middleware';
 
 import { auth } from '@/auth';
@@ -9,11 +10,13 @@ import { getPathname, locales, navigation } from '@/i18n/navigation';
 const intlMiddleware = createMiddleware(navigation);
 
 export default auth((req) => {
+    console.log('Host:', headers().get('x-forwarded-host'));
+    console.log('Origin:', headers().get('origin'));
     const { nextUrl, auth } = req;
-    const locale = getLocaleCookie()
+    const locale = getLocaleCookie();
 
     const authRoutesWithLocales = authRoutes.map((route) =>
-         locales.map((locale) =>
+        locales.map((locale) =>
             getPathname({
                 locale,
                 href: route,
@@ -45,6 +48,6 @@ export const config = {
     matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
 };
 
-function getUrlWithLocal(url:string, locale:string, nextUrl:NextURL) {
+function getUrlWithLocal(url: string, locale: string, nextUrl: NextURL) {
     return new URL(`/${locale}${url}`, nextUrl);
 }
