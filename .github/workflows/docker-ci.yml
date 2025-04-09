@@ -4,8 +4,8 @@ on:
     workflows: ["Check Version and Release"]
     types:
       - completed
-    tags:
-      - *
+    branches:
+      - 'tags/*'
 
 jobs:
   check_workflow_and_ref:
