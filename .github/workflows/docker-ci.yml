@@ -5,7 +5,8 @@ on:
     types:
       - completed
     branches:
-      - tags/*
+      - refs/tags/*
+      - refs/tags
 
 jobs:
   check_workflow_and_ref:
