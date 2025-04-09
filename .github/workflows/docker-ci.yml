@@ -1,7 +1,7 @@
 name: Build Docker images
 on:
   release:
-    types: [created]
+    types: [created,released,published]
 
 jobs:
   next_docker_build_push:
