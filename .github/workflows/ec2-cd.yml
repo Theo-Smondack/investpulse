@@ -6,10 +6,30 @@ on:
       - completed
 jobs:
   ec2-cd:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the files
         uses: actions/checkout@v4
+      - name: Get tag name
+        id: get-tag
+        run: |
+          WORKFLOW_RUN_ID=${{ github.event.workflow_run.id }}
+          REPO=${{ github.repository }}
+          
+          RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                    "https://api.github.com/repos/$REPO/actions/runs/$WORKFLOW_RUN_ID")
+          
+          REF=$(echo $RESPONSE | jq -r .head_branch)
+          
+          if [[ $REF == refs/tags/* ]]; then
+            TAG=${REF#refs/tags/}
+          else
+            TAG=latest
+          fi
+          
+          echo "TAG=$TAG" >> $GITHUB_ENV
+          echo "Tag being deployed: $TAG"
       - name: Copy required files to EC2 instance
         uses: appleboy/scp-action@master
         with:
@@ -28,4 +48,4 @@ jobs:
           port: 22
           script: |
             cd /home/ubuntu/dev/investpulse/deployment
-            make up-recreate-app
+            make deploy-version TAG_VERSION=${{ env.TAG }}

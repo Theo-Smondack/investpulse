@@ -1,5 +1,5 @@
 services:
   next:
-    image: theospro/investpulse-next:latest
+    image: theospro/investpulse-next:${TAG_VERSION:-latest}
   nginx:
-    image: theospro/investpulse-nginx:latest
+    image: theospro/investpulse-nginx:${TAG_VERSION:-latest}

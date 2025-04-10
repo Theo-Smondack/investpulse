@@ -3,7 +3,8 @@ include ../.env
 .DEFAULT_GOAL:=help
 PWD=$(shell pwd)
 ROOT_DIR=..
-COMPOSE=docker compose -f $(ROOT_DIR)/docker-compose.yml -f $(ROOT_DIR)/docker/docker-compose.prod.yml
+TAG_VERSION ?= latest
+COMPOSE=docker compose -f $(ROOT_DIR)/docker-compose.yml -f $(ROOT_DIR)/docker/docker-compose.prod.yml TAG_VERSION=$(TAG_VERSION)
 EXECNEXT=$(COMPOSE) exec next
 EXECPG=$(COMPOSE) exec postgres
 EXECNGINX=$(COMPOSE) exec nginx
@@ -22,6 +23,10 @@ up: ## Start the project
 	$(COMPOSE) up -d --remove-orphans
 
 up-recreate-app: ## Start the project and recreate the containers
+	$(COMPOSE) up -d --remove-orphans --force-recreate next nginx
+
+deploy-version: ## Deploy specific version (Usage: make deploy-version TAG_VERSION=v1.2.3)
+	@echo "Deploying version: $(TAG_VERSION)"
 	$(COMPOSE) up -d --remove-orphans --force-recreate next nginx
 
 stop: ## Stop containers project
