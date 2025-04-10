@@ -31,4 +31,5 @@ runs:
         gh release create "$tag" \
           --repo="$GITHUB_REPOSITORY" \
           --title="${tag#v}" \
+          --daft=false \
           --generate-notes
