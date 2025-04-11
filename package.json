@@ -14,7 +14,7 @@
     "print-version": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' scripts/printVersion.ts"
   },
   "prisma": {
-    "seed": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/seed.ts"
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.2",
