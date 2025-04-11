@@ -4,7 +4,7 @@ include ../.env
 PWD=$(shell pwd)
 ROOT_DIR=..
 TAG_VERSION ?= latest
-COMPOSE=docker compose -f $(ROOT_DIR)/docker-compose.yml -f $(ROOT_DIR)/docker/docker-compose.prod.yml TAG_VERSION=$(TAG_VERSION)
+COMPOSE=docker compose -f $(ROOT_DIR)/docker-compose.yml -f $(ROOT_DIR)/docker/docker-compose.prod.yml
 EXECNEXT=$(COMPOSE) exec next
 EXECPG=$(COMPOSE) exec postgres
 EXECNGINX=$(COMPOSE) exec nginx
@@ -27,7 +27,7 @@ up-recreate-app: ## Start the project and recreate the containers
 
 deploy-version: ## Deploy specific version (Usage: make deploy-version TAG_VERSION=v1.2.3)
 	@echo "Deploying version: $(TAG_VERSION)"
-	$(COMPOSE) up -d --remove-orphans --force-recreate next nginx
+	TAG_VERSION=$(TAG_VERSION) $(COMPOSE) up -d --remove-orphans --force-recreate next nginx
 
 stop: ## Stop containers project
 	$(COMPOSE) stop
